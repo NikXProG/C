@@ -1,1 +1,1 @@
-# C
+# laboratory works on C
