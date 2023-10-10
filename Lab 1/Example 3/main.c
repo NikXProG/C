@@ -89,13 +89,9 @@ int main(int argc, char *argv[]){
         while ((c = getc(file_)) != EOF){
             while (c != '\n'){
                 if (count%2==0){
-                    ach = strchr(char_letters, c); 
-                    if (ach!=NULL){
-                        fprintf(file_out_, "%c", tolower(c));                
-                    }
-                    else{
-                        fprintf(file_out_, "%c",c);    
-                    }  
+                    if (isalpha(c)){
+                        c = tolower(c);
+                    }               
                 }
                 if(count%5==0){
                     fprintf(file_out_, "%d", c);                                        
