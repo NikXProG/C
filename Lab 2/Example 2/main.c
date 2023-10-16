@@ -5,54 +5,46 @@
 #include <string.h>
 
 enum StatusCode{
-    SUCCESS,
     NEGATIVE_NUBMERS,
     DIVIDE_BY_ZERO,
     INPUT_ERROR
 };
 
-enum StatusCode geometric_mean(double *,int, ...);
-enum StatusCode recursion_power(double *, double, int);
+double geometric_mean(int, ...);
+double recursion_power(double, int);
 
 int main() {
-    double division_result;
 
-    enum StatusCode STATUS_GEOM_MEAN = geometric_mean(&division_result ,3, -2.0, -2.4, 34.2);
-
-    switch (STATUS_GEOM_MEAN) {
-        case SUCCESS:
-            printf("RESULT GEOMETRIC MEAN: %.2f\n", division_result);
-            break;
-        case DIVIDE_BY_ZERO:
-            printf("Division Error: You can't divide by zero.\n");
-            return 1;
-            break;
-        case NEGATIVE_NUBMERS:
-            printf("Input Error: The program cannot calculate a number in complex format. \n");
-            return 2;
-            break;
-        default:
-            printf("Input Error: Incorrected input \n");
-            return 3;
-    }   
-
-    double result_recursion_power;
-    enum StatusCode STATUS_RECS_POW = recursion_power(&result_recursion_power, 3.5, 6);
-    switch (STATUS_RECS_POW) {
-        case SUCCESS:
-            printf("RESULT POWER: %.2f\n", result_recursion_power);
-            break;
-        default:
-            printf("Input Error: Incorrect input\n");
-            return 4;
+    enum StatusCode STATUS_GEOM_MEAN = geometric_mean(3, -2.0, -2.4, 4.2);
+    if ( STATUS_GEOM_MEAN == NEGATIVE_NUBMERS){
+        printf("Input Error: The program cannot calculate a number in complex format. \n");
+        return 1;
     }
+    else if(STATUS_GEOM_MEAN == DIVIDE_BY_ZERO){
+        printf("Division Error: You can't divide by zero.\n");
+    }
+    else{
+
+        printf("RESULT GEOM MEAN: \n%f\n",geometric_mean(3, -2.0, -2.4, 4.2));
+    }
+
+    enum StatusCode STATUS_POW = recursion_power(3.5, 6);
+
+    if (  STATUS_POW == NEGATIVE_NUBMERS){
+        printf("Input Error: The program cannot calculate a number in complex format. \n");
+        return 1;
+    }
+    else{
+        printf("RESULT RECURSION POWER: \n%f \n", recursion_power(3.5, 6) );       
+    }
+
 
     return 0;
 }
 
 
 
-enum StatusCode geometric_mean(double *result,int count, ...) {
+double geometric_mean(int count, ...) {
     va_list args;
     double product = 1.0, num;
     int arg_count_error = 0, arg_negative_numbers_err = 0, i;
@@ -83,31 +75,19 @@ enum StatusCode geometric_mean(double *result,int count, ...) {
         return NEGATIVE_NUBMERS;
     }
 
-    *result = pow(product, 1.0 / count);
 
-    return SUCCESS;
+    return pow(product, 1.0 / count);
 }
 
 
 
-enum StatusCode recursion_power(double *result, double number, int degree)
+double recursion_power(double number, int degree)
 {
-    if (degree < 0) {
-        return INPUT_ERROR;
+    if  (degree < 0){
+        return NEGATIVE_NUBMERS;
     }
-
-    if (degree == 0) {
-        *result = 1;
-        return SUCCESS;
+    if (degree != 0) {
+        return  number * recursion_power(number, degree - 1);
     }
-
-    enum StatusCode status = recursion_power(result, number, degree - 1);
-
-    if (status != SUCCESS) {
-        return status;
-    }
-
-    *result *= number;
-
-    return SUCCESS;
+    return 1;
 }
