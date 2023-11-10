@@ -5,10 +5,19 @@
 #include <string.h>
 
 enum StatusCode{
-    NEGATIVE_NUBMERS,
-    DIVIDE_BY_ZERO,
-    INPUT_ERROR
+    NEGATIVE_NUMBERS = 1,
+    DIVIDE_BY_ZERO = 2,
+    INPUT_ERROR = 3,
+    OK = 4
 };
+
+enum PowStatusCode{
+    NEGATIVE_NUMBERS = 1,
+    INPUT_ERROR = 2,
+    UNDEFINED_RESULT = 3,
+    OK = 4
+};
+
 
 double geometric_mean(int, ...);
 double recursion_power(double, int);
@@ -16,7 +25,7 @@ double recursion_power(double, int);
 int main() {
 
     enum StatusCode STATUS_GEOM_MEAN = geometric_mean(3, -2.0, -2.4, 4.2);
-    if ( STATUS_GEOM_MEAN == NEGATIVE_NUBMERS){
+    if ( STATUS_GEOM_MEAN == NEGATIVE_NUMBERS){
         printf("Input Error: The program cannot calculate a number in complex format. \n");
         return 1;
     }
@@ -30,7 +39,7 @@ int main() {
 
     enum StatusCode STATUS_POW = recursion_power(3.5, 6);
 
-    if (  STATUS_POW == NEGATIVE_NUBMERS){
+    if (  STATUS_POW == NEGATIVE_NUMBERS){
         printf("Input Error: The program cannot calculate a number in complex format. \n");
         return 1;
     }
@@ -72,7 +81,7 @@ double geometric_mean(int count, ...) {
     // проверка на неотрицательное число в корне
 
     if ( arg_negative_numbers_err % 2 != 0 ){
-        return NEGATIVE_NUBMERS;
+        return NEGATIVE_NUMBERS;
     }
 
 
@@ -81,13 +90,38 @@ double geometric_mean(int count, ...) {
 
 
 
-double recursion_power(double number, int degree)
+enum PowStatusCode recursion_power(double number, int degree, double epsilon, double *result)
 {
-    if  (degree < 0){
-        return NEGATIVE_NUBMERS;
+    double res;
+    if (fabs(number) < epsilon && degree == 0)
+    {
+        return UNDEFINED_RESULT;
     }
-    if (degree != 0) {
-        return  number * recursion_power(number, degree - 1);
+    if (degree == 0)
+    {
+        *result = 1.0;
+        return OK;
     }
+    if (fabs(number - 1) < epsilon)
+    {
+        *result = 1.0;
+        return OK;
+    }
+    if (degree < 0)
+    {
+        switch (recursion_power(number, -degree, epsilon, &res))
+        {
+            case OK:
+                *result = 1.0 / res;
+                return OK;
+            case UNDEFINED_RESULT:
+                return UNDEFINED_RESULT;
+            default:
+                // TODO:
+        }
+    }
+
+    // 
+
     return 1;
 }

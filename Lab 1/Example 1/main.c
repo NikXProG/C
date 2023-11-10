@@ -5,21 +5,21 @@
 unsigned long long factorial(unsigned long long n);
 int value,accumulator,count,primelity_flag;
 unsigned long long i;
-int main(int argc, char *argv[]){
+int main(int argc /*count_arg*/, char *argv[] /*[2133, 34432432, 32432324]*/){
     if ( argc != 3){
         printf("Invalid arguments count!");
-        return 1;
+        return 1; 
     }
     if( sscanf(argv[2], "%d", &value) != 1 ){
         printf("Invalid value of second parameter!");
         return 2;       
     }
-    if ((strcmp(argv[1],"-h") == 0) || (strcmp(argv[1],"/h") == 0)){
+    if ((strcmp(argv[1]/*"-h"*/,"-h") == 0) || (strcmp(argv[1],"/h") == 0)){
         if( value == 0){
             printf("Zero Error: Invalid value of second parameter!");
             return 3;
         }
-        accumulator = value;
+        accumulator = value; 4 8 12 
         for (i=0;i<=100; i+=accumulator){
             if (i==0){
                 continue;
@@ -43,13 +43,13 @@ int main(int argc, char *argv[]){
         }
         else{
             primelity_flag = 1;
-            for (i=2;i<= (int) sqrt(value);i+=1){
+            for (i=2;i<= (int) sqrt(value);i++){
                 if (value % i == 0){
                     primelity_flag = 0;
                     break;
                 }
             }
-        }
+        } 
 
         if (value > 1){
             if (primelity_flag == 0){
@@ -89,7 +89,7 @@ int main(int argc, char *argv[]){
 
     }
     if ((strcmp(argv[1],"-a") == 0) || (strcmp(argv[1],"/a") == 0)){
-        unsigned long long sum_arithmetic_progression;
+        unsigned long long sum_arithmetic_progression; 
         sum_arithmetic_progression = ((1 + atoi(argv[2])) * atoi(argv[2])) / 2;
         printf("%llu ", sum_arithmetic_progression);
     }
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]){
         fact = factorial(atoi(argv[2]));
         printf("factorial = %llu",fact);
     }
-
+    return 0;
 }
 unsigned long long factorial(unsigned long long n)
 {

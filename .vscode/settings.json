@@ -5,6 +5,8 @@
         "string.h": "c",
         "stdbool.h": "c",
         "ctype.h": "c",
-        "stdarg.h": "c"
+        "stdarg.h": "c",
+        "stdio.h": "c",
+        "limits.h": "c"
     }
 }

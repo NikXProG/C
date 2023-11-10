@@ -1,0 +1,1 @@
+            substring[ach-substring] = '\0';

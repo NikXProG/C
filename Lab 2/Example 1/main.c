@@ -1,20 +1,16 @@
 #include <stdio.h>
 #include <limits.h>
-#include <errno.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <malloc.h>
 #include <ctype.h>
 
 enum StatusCode{
-    INVALID_COUNT_ARGUMENTS,
-    NEGATIVE_NUBMERS,
-    DIVIDE_BY_ZERO,
-    INPUT_ERROR
+    INVALID_COUNT_ARGUMENTS = 1,
+    MEMORY_ERROR = 2
 };
 
 int fuct_strcmp(const char *, const char *);
-char * fuct_memcpy(char *, const char *, size_t);
 int fuct_strlen(const char *);
 char * fuct_reversed(const char *);
 char * fuct_noeven_toupper(const char *);
@@ -31,17 +27,16 @@ int main(int argc, char *argv[]){
 
     if (fuct_strcmp(argv[1],"-l") == 0){
         if (argc != 3){
-            perror("Unfortunately, a memory non-allocation error occurred");
-            return 1;        
+            printf("Invalid count parameters");
+            return INVALID_COUNT_ARGUMENTS;        
         }
         printf("%d",fuct_strlen(argv[2]));
     }
     else if (fuct_strcmp(argv[1],"-r") == 0){
 
         if (fuct_reversed(argv[2]) == NULL){
-            errno = ENOMEM;
             perror("Unfortunately, a memory non-allocation error occurred");
-            return errno; 
+            return MEMORY_ERROR; 
         }
 
         printf("%s",fuct_reversed(argv[2]));        
@@ -49,18 +44,16 @@ int main(int argc, char *argv[]){
     else if (fuct_strcmp(argv[1],"-u") == 0){
 
         if (fuct_noeven_toupper(argv[2]) == NULL){
-            errno = ENOMEM;
             perror("Unfortunately, a memory non-allocation error occurred");
-            return errno; 
+            return MEMORY_ERROR; 
         }
     
         printf("%s",fuct_noeven_toupper(argv[2]));            
     }
     else if (fuct_strcmp(argv[1],"-n") == 0){
         if (fuct_sort(argv[2]) == NULL){
-            errno = ENOMEM;
             perror("Unfortunately, a memory non-allocation error occurred");
-            return errno; 
+            return MEMORY_ERROR; 
         }
         printf("%s",fuct_sort(argv[2]));  
     }
@@ -117,14 +110,14 @@ int fuct_strlen(const char * string){
 
 char * fuct_reversed(const char * string){
     int i, new_count = 0;
+    int len = fuct_strlen(string);
 
-
-    char * array_string = (char *) malloc( (fuct_strlen(string) + 1) * sizeof(char) );
+    char * array_string = (char *) malloc( (len + 1) * sizeof(char) );
     if (array_string == NULL){
         return NULL;
     }
 
-    for(i=(fuct_strlen(string)-1); i>= 0; i--){
+    for(i=(len-1); i>= 0; i--){
         array_string[new_count++] = string[i];
     }
 
@@ -155,6 +148,9 @@ char * fuct_noeven_toupper(const char * string){
 char * fuct_sort(const char * string){
     int i, strlen = (fuct_strlen(string) + 1);
     char * array_string = (char *) malloc( strlen * sizeof(char) );  
+    if (array_string == NULL){
+        return NULL;
+    }
     int count = 0;
 
     for(i=0;i<strlen-1; i++){
@@ -184,6 +180,9 @@ char* concatenate_strings(unsigned int num_strings, char* strings[], unsigned in
 
     // Создаем массив для хранения индексов строк
     unsigned int* indices = (unsigned int*)malloc(num_strings * sizeof(unsigned int));
+    if (indices = NULL){
+        return NULL;
+    }
     for (unsigned int i = 0; i < num_strings; ++i) {
         indices[i] = i;
     }
@@ -205,7 +204,11 @@ char* concatenate_strings(unsigned int num_strings, char* strings[], unsigned in
 
     // Выделяем память под результат
     char* result = (char*)malloc((total_length + 1) * sizeof(char));
+    if ( result = NULL){
 
+        free( indices);
+        return NULL;
+    }
     // Копируем строки в результирующую строку
     unsigned int current_position = 0;
     for (unsigned int i = 0; i < num_strings; ++i) {

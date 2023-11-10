@@ -10,10 +10,10 @@ int is_convex_polygon(int num_vertices, ...);
 double evaluate_polynomial(double x, int degree, ...);
 
 int main() {
-    int result1 = is_convex_polygon(4, 0, 0, 1, 0, 1, 1, 0, 1); // Пример выпуклого четырехугольника
+    int result1 = is_convex_polygon(4, (double) 0, (double) 0,  (double) 2,  (double) 2, (double) 4, (double) 0,  (double) 2, (double) -2); // Пример выпуклого четырехугольника
     printf("Is the polygon convex? %s\n", result1 ? "Yes" : "No");
 
-    int result2 = is_convex_polygon(4, 0, 0, 1, 0, 0.5, 1, -0.5, 1); // Пример невыпуклого четырехугольника
+    int result2 = is_convex_polygon(4, (double) 0, (double) 0, (double) 1, (double) 0, (double) 0.5,  (double)1, (double) -0.5,  (double)1); // Пример невыпуклого четырехугольника
     printf("Is the polygon convex? %s\n", result2 ? "Yes" : "No");
 
     double result3 = evaluate_polynomial(2.0, 3, 2.0, -3.0, 1.0); // 2.0 * x^2 - 3.0 * x + 1.0

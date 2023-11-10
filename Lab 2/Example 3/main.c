@@ -32,7 +32,7 @@ enum StatusCode find_substring_in_files(const char *substring, int num_files, ..
             return INCORRECTED_READ_FILE;
         }
 
-        printf("Searching for \"%s\" in file: %s\n", substring, file_path);
+       // printf("Searching for \"%s\" in file: %s\n", substring, file_path);
 
         char line[256];
         int line_number = 1;
@@ -58,7 +58,7 @@ enum StatusCode find_substring_in_files(const char *substring, int num_files, ..
 
 
                 if (match) {
-                    printf("Found at line: %d, column: %d\n", line_number, column_number);
+                   // printf("Found at line: %d, column: %d\n", line_number, column_number);
                 }
                 
 
