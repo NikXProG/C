@@ -1,1 +1,1 @@
-            substring[ach-substring] = '\0';
+ XLIX 

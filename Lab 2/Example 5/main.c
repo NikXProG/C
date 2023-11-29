@@ -5,48 +5,66 @@
 #include <malloc.h>
 #include <ctype.h>
 #include <stdbool.h>
+#define MAX_SIZE_DATA 256
 
-enum StatusCode{
-    PROGRAM_COMPLETED_SUCCESSFULLY = 0,
+enum StatusCodeBase{
+    OK = 0
+};
+
+enum StatusCodeParameters{
     INVALID_COUNT_SPECIFICATION_PARAMETERS = 1,
     INCORRECTED_SPECIFICATION_FORMAT = 2,
     INCORRECTED_ROMAN_NUMBERS_FORMAT = 3,
     SPECITICATION_NOT_FOUND = 4,
-    MEMORY_ALLOCATION_ERROR = 5
 };
 
-int overfscanf(char *, char *, ...);
+enum StatusCodeFile{ 
+    ERROR_READING_FILE = 5
+};
+
+
+enum StatusCodeMemory{
+    MEMORY_RECEIVED_DATA_ALLOCATION_ERROR = 6,
+    MEMORY_SPECIFICATION_DATA_ALLOCATION_ERROR = 7,
+    MEMORY_ALLOCATION_ERROR = 8
+};
+
+int overfscanf(FILE *, char *, ...);
 int oversscanf(char *,char *, ...);
+
+void free_memory(char**, int);
+int memory_allocation(char**,char **, int);
+int system_number_convert(char *, int, bool );
 int main(void){
     char str[40];
     int a,b,c,d,e,f=16,h;
     unsigned int q;
     double flo;
     char wewq;   
+
+    FILE *file= fopen("text.txt", "r");
+    
+
     printf("FILE SCANF: \n");
-    switch (overfscanf("hello 1 2 3 s XLIX 2a 2A 1010101", "%s %d %d %f %c %Ro %Cv %CV %Zr",str,&a,&b,&flo,&wewq,&d,&e,f,&h,16,&q))
+    switch (overfscanf(file, "%s %d %d %f %c %Ro %Cv %CV %Zr",str,&a,&b,&flo,&wewq,&d,&e,f,&h,16,&q))
     {
     case(0):
         printf("%s %d %d %f %c %d %d %d %u",str,a,b,flo,wewq,d,e,h,q);
-        printf("\nthe program completed successfully");
         break;
     case(1):
-        printf("INVALID_COUNT_SPECIFICATION_PARAMETERS");
+
         break;
     case(2):
-        printf("INCORRECTED_SPECIFICATION_FORMAT");
         break;
     case(3):
-        printf("INCORRECTED_ROMAN_NUMBERS_FORMAT");
+
         break;
     case(4):
-        printf("SPECITICATION_NOT_FOUND");
+
         break;
     case(5):
-        printf("MEMORY_ALLOCATION_ERROR");
+
         break;
-    default:
-        printf("unpredictable program operation");
 
 
     }
@@ -57,70 +75,159 @@ int main(void){
     {
     case(0):
         printf("%s %d %d %f %c %d %d %d %u",str,a,b,flo,wewq,d,e,h,q);
-        printf("\nthe program completed successfully");
         break;
     case(1):
-        printf("INVALID_COUNT_SPECIFICATION_PARAMETERS");
         break;
     case(2):
-        printf("INCORRECTED_SPECIFICATION_FORMAT");
         break;
     case(3):
-        printf("INCORRECTED_ROMAN_NUMBERS_FORMAT");
         break;
     case(4):
-        printf("SPECITICATION_NOT_FOUND");
         break;
     case(5):
-        printf("MEMORY_ALLOCATION_ERROR");
         break;
-    default:
-        printf("unpredictable program operation");
-
 
     }
 
 
     return 0;
 }
+void free_memory(char** buffer_string, int len) {
 
-int overfscanf(char *buf, char * format, ...){
+    for (int i = 0; i < len; i++) {
+        free(buffer_string[i]);
+    }
+    free(buffer_string);
+}
+
+int memory_allocation(char** string_memory_allocation, char** for_memory_leak_string , int len){
+
+        // memory allocation errors
+    if (string_memory_allocation  == NULL) {
+        if (for_memory_leak_string != NULL){ free_memory(for_memory_leak_string, len);};
+        return MEMORY_ALLOCATION_ERROR;
+    }
+    for (int i = 0; i < len; i++) {
+        string_memory_allocation[i] = (char *)malloc(MAX_SIZE_DATA * sizeof(char));
+
+        // memory allocation errors
+        if (string_memory_allocation[i] == NULL) {
+            free(string_memory_allocation);
+            if (for_memory_leak_string != NULL){ free_memory(for_memory_leak_string, len);};
+            return MEMORY_ALLOCATION_ERROR;
+        }
+
+    }
+    return OK;
+}
+
+int system_number_convert(char * string_number, int base, bool upper_register){
+    if (base < 2 || base > 36) {
+        base = 10;
+    }
+    
+    int result = 0; 
+    int sign = 1;
+    
+    
+    if (string_number[0] == '-') {
+        sign = -1; 
+    }
+    
+    
+    for (int j = (string_number[0] == '-' ? 1 : 0); string_number[j] != '\0'; j++) {
+
+        
+        int digit;
+        
+        
+        if (isdigit(string_number[j])) {
+            digit = string_number[j] - '0'; 
+        } else {
+            digit = string_number[j] - (upper_register?'A': 'a') + 10;
+        }
+        
+        
+        if (digit >= 0 && digit < base) {
+            result = result * base + digit; 
+        } else {
+            break; 
+        }
+    }
+    return result*sign;
+           
+}
+
+int roman_number_convert(char*array_roman, int*sum){
+    int roman_numbers = 0;
+
+    for (int j = 0;j<strlen(array_roman); j++){
+        int old_roman_numbers = roman_numbers;
+        switch(array_roman[j]){
+            case('I'):
+                roman_numbers=1;
+                break;
+            case('V'):
+                roman_numbers=5;
+                break;
+            case('X'):
+                roman_numbers=10;
+                break;
+            case('L'):
+                roman_numbers=50;
+                break;
+            case('C'):
+                roman_numbers=100;
+                break;
+            case('D'):
+                roman_numbers=500;
+                break;
+            case('M'):
+                roman_numbers=1000;
+                break;
+            default:
+                return INCORRECTED_ROMAN_NUMBERS_FORMAT;
+        }
+        //  III 1(0)+1(1) +1 (2)
+        // IV 1(0) + 4(1)
+        if  ((j!=0) && (old_roman_numbers < roman_numbers)){
+                *sum += (roman_numbers-old_roman_numbers);
+                *sum -= old_roman_numbers;
+
+        }
+        else{
+            *sum += roman_numbers;
+
+        }
+
+    }  
+}
+
+int overfscanf(FILE *file, char * format, ...){
 
     va_list arguments;
     va_start(arguments, format); 
 
-    FILE *file= fopen("text.txt", "r");
-    if (file == NULL) {
-        printf("Failed to open file\n");
-        return 1;
-    }    
+
+    if (file == NULL) {  return ERROR_READING_FILE; }    
 
     int len =  strlen(format)+1; 
     
     char **buffer_string = (char **)malloc(len * sizeof(char *));
-    
-    if (buffer_string == NULL) {
-        return MEMORY_ALLOCATION_ERROR;
-    }
-    for (int i = 0; i < len; i++) {
-        buffer_string[i] = (char *)malloc(256 * sizeof(char));
-        if (buffer_string[i] == NULL) {
-            free(buffer_string);
-            return MEMORY_ALLOCATION_ERROR;
-        }
-    }
 
-    
-
-
+    if (memory_allocation(buffer_string,NULL, len)){ return MEMORY_RECEIVED_DATA_ALLOCATION_ERROR; }
 
     char c;
-    char substring[256];
+    char substring[MAX_SIZE_DATA];
     int count = 0;
     char *ach;
     int count_buffer_string = 0;
+
+    //reading lines from a file.
+
     while(!feof (file)) {
-        if (fgets(substring, 250, file)){
+
+        if (fgets(substring, MAX_SIZE_DATA, file)){
             int ch = '\n';
             ach=strchr(substring,ch);
             substring[ach-substring] = '\0';
@@ -128,34 +235,15 @@ int overfscanf(char *buf, char * format, ...){
 
         }
     }
-   
+       
+
     fclose(file);
-    
-
-
-
     char **specification_buffer_string = (char **)malloc(len * sizeof(char *));
-    if (specification_buffer_string == NULL) {
-        free(buffer_string);
-        for (int i = 0; i < len; i++) {
-            free(buffer_string[i]);
-        }
-        return MEMORY_ALLOCATION_ERROR;
-    }
-    for (int i = 0; i < len; i++) {
-        specification_buffer_string[i] = (char *)malloc(256 * sizeof(char));
-        if (specification_buffer_string[i] == NULL) {
-            free(specification_buffer_string);
-            free(buffer_string);
-            for (int i = 0; i < len; i++) {
-                free(buffer_string[i]);
-            }
-            return MEMORY_ALLOCATION_ERROR;
-        }
-    }
+
+    if (memory_allocation(specification_buffer_string,buffer_string, len)){ return MEMORY_SPECIFICATION_DATA_ALLOCATION_ERROR; }
 
     int old_count_buffer_string = count_buffer_string - 1;
-    char as_substring[256];
+    char as_substring[MAX_SIZE_DATA];
     count_buffer_string = 0;
     int c_count = 0;
 
@@ -184,14 +272,8 @@ int overfscanf(char *buf, char * format, ...){
     }
 
     if ( old_count_buffer_string != count_buffer_string){
-        free(specification_buffer_string);
-        free(buffer_string);
-        for (int i = 0; i < len; i++) {
-            free(buffer_string[i]);
-        }
-        for (int i = 0; i < len; i++) {
-            free(specification_buffer_string[i]);
-        }
+        free_memory(specification_buffer_string, len);
+        free_memory(buffer_string, len);       
         return INVALID_COUNT_SPECIFICATION_PARAMETERS;
     }
     bool flag_error_specification_characters = false;
@@ -220,54 +302,8 @@ int overfscanf(char *buf, char * format, ...){
         }
         else if(strcmp(specification_buffer_string[i],"%Ro") == 0){
             int *val = va_arg(arguments,int*);
-            int roman_numbers = 0;
             int sum_roman_numbers = 0;
-            for (int j = 0;j<strlen(buffer_string[i]); j++){
-                int old_roman_numbers = roman_numbers;
-                switch(buffer_string[i][j]){
-                    case('I'):
-                        roman_numbers=1;
-                        break;
-                    case('V'):
-                        roman_numbers=5;
-                        break;
-                    case('X'):
-                        roman_numbers=10;
-                        break;
-                    case('L'):
-                        roman_numbers=50;
-                        break;
-                    case('C'):
-                        roman_numbers=100;
-                        break;
-                    case('D'):
-                        roman_numbers=500;
-                        break;
-                    case('M'):
-                        roman_numbers=1000;
-                        break;
-                    default:
-                        if(j != strlen(buffer_string[i]) - 1 ){
-                            return INCORRECTED_ROMAN_NUMBERS_FORMAT;
-                        }
-
-                }
-                //  III 1(0)+1(1) +1 (2)
-                // IV 1(0) + 4(1)
-                if  ((j!=0) && (old_roman_numbers < roman_numbers)){
-                        sum_roman_numbers += (roman_numbers-old_roman_numbers);
-                        sum_roman_numbers -= old_roman_numbers;
-            
-                }
-                else{
-                    sum_roman_numbers += roman_numbers;
-
-                }
-
-
-            }
-            
-
+            roman_number_convert(buffer_string[i],&sum_roman_numbers);
             *val = sum_roman_numbers;
         }
         
@@ -294,191 +330,79 @@ int overfscanf(char *buf, char * format, ...){
         else if(strcmp(specification_buffer_string[i],"%Cv") == 0){
             int *val = va_arg(arguments,int*);
             int base = va_arg(arguments,int);
-            
-            if (base < 2 || base > 36) {
-                base = 10;
-            }
-            
-            int result = 0; 
-            int sign = 1; 
-            
-
-            if (buffer_string[i][0] == '-') {
-                sign = -1; 
-            }
-            
-
-            for (int j = (buffer_string[i][0] == '-' ? 1 : 0); buffer_string[i][j] != '\0'; j++) {
-
-                
-                int digit;
-                
-  
-                if (isdigit(buffer_string[i][j])) {
-                    digit = buffer_string[i][j] - '0'; 
-                } else {
-                    digit = buffer_string[i][j] - 'a' + 10; 
-                }
-                
-
-                if (digit >= 0 && digit < base) {
-                    result = result * base + digit; 
-                } else {
-                    break; 
-                }
-            }
-            
-
-            *val = result * sign;
+            *val = system_number_convert(buffer_string[i],base, false);
         }
         else if(strcmp(specification_buffer_string[i],"%CV") == 0){
             int *val = va_arg(arguments,int*);
             int base = va_arg(arguments,int);
-
-            if (base < 2 || base > 36) {
-                base = 10;
-            }
-            
-            int result = 0; 
-            int sign = 1;
-            
-           
-            if (buffer_string[i][0] == '-') {
-                sign = -1; 
-            }
-            
-            
-            for (int j = (buffer_string[i][0] == '-' ? 1 : 0); buffer_string[i][j] != '\0'; j++) {
-
-                
-                int digit;
-                
-                
-                if (isdigit(buffer_string[i][j])) {
-                    digit = buffer_string[i][j] - '0'; 
-                } else {
-                    digit = buffer_string[i][j] - 'A' + 10;
-                }
-                
-                
-                if (digit >= 0 && digit < base) {
-                    result = result * base + digit; 
-                } else {
-                    break; 
-                }
-            }
-            
-            
-            *val = result * sign;
+            *val =  system_number_convert(buffer_string[i],base, true);
         }
         else{
-            free(specification_buffer_string);
-            free(buffer_string);
-            for (int i = 0; i < len; i++) {
-                free(buffer_string[i]);
-            }
-            for (int i = 0; i < len; i++) {
-                free(specification_buffer_string[i]);
-            }
+            free_memory(buffer_string,len);
+            free_memory(specification_buffer_string,len);
             return SPECITICATION_NOT_FOUND; 
         }
 
     }
 
 
-    // Освобождение памяти
-    for (int i = 0; i < len; i++) {
-        free(specification_buffer_string[i]);
-    }
-    free(specification_buffer_string);   
 
-    // Освобождение памяти
-    for (int i = 0; i < len; i++) {
-        free(buffer_string[i]);
-    }
-    free(buffer_string);    
+    free_memory(specification_buffer_string, len);
+    free_memory(buffer_string, len);
 
 
     va_end(arguments);
-    return PROGRAM_COMPLETED_SUCCESSFULLY;
+    return OK;
 
 
 }
-
-
 
 int oversscanf(char *buf, char * format, ...){
 
     va_list arguments;
     va_start(arguments, format); 
+
     int len = strlen(buf)+1;
 
 
     char **buffer_string = (char **)malloc(len * sizeof(char *));
-    
-    if (buffer_string == NULL) {
-        return MEMORY_ALLOCATION_ERROR;
-    }
-    for (int i = 0; i < len; i++) {
-        buffer_string[i] = (char *)malloc(256 * sizeof(char));
-        if (buffer_string[i] == NULL) {
-            free(buffer_string);
-            return MEMORY_ALLOCATION_ERROR;
-        }
-    }
 
+    //memory allocation buffer_string
+    if (memory_allocation(buffer_string,NULL, len)){ return MEMORY_SPECIFICATION_DATA_ALLOCATION_ERROR; }
     
 
-    char substring[256];
+    char substring[MAX_SIZE_DATA];
     int count = 0;
     int count_buffer_string = 0;
 
-
-
-    for (char* ptr = buf; *ptr != '\0'; ptr++){
-           
-        if (*ptr != ' '){
+    for (char* ptr = buf; *ptr != '\0'; ptr++) {
+        if (*ptr != ' ') {
             substring[count++] = *ptr;
-    
-            if(*(ptr+1) == '\0'){
+
+            if (*(ptr + 1) == '\0') {
                 substring[count] = '\0';
-                strcpy(buffer_string[count_buffer_string], substring);   
-
-
+                strcpy(buffer_string[count_buffer_string], substring);
             }
-        }
-
-        else{
+        } else {
             substring[count] = '\0';
             strcpy(buffer_string[count_buffer_string++], substring);
             count = 0;
+
         }
-    
     }
 
 
+
+
+ 
     char **specification_buffer_string = (char **)malloc(len * sizeof(char *));
-    if (specification_buffer_string == NULL) {
-        free(buffer_string);
-        for (int i = 0; i < len; i++) {
-            free(buffer_string[i]);
-        }
-        return MEMORY_ALLOCATION_ERROR;
-    }
-    for (int i = 0; i < len; i++) {
-        specification_buffer_string[i] = (char *)malloc(256 * sizeof(char));
-        if (specification_buffer_string[i] == NULL) {
-            free(specification_buffer_string);
-            free(buffer_string);
-            for (int i = 0; i < len; i++) {
-                free(buffer_string[i]);
-            }
-            return MEMORY_ALLOCATION_ERROR;
-        }
-    }
+    //memory allocation specification string
+    if (memory_allocation(specification_buffer_string,buffer_string, len)){ return MEMORY_SPECIFICATION_DATA_ALLOCATION_ERROR; }
+
+
 
     int old_count_buffer_string = count_buffer_string;
-    char as_substring[256];
+    char as_substring[MAX_SIZE_DATA];
     count_buffer_string = 0;
     int c_count = 0;
 
@@ -543,51 +467,8 @@ int oversscanf(char *buf, char * format, ...){
         }
         else if(strcmp(specification_buffer_string[i],"%Ro") == 0){
             int *val = va_arg(arguments,int*);
-            int roman_numbers = 0;
             int sum_roman_numbers = 0;
-            for (int j = 0;j<strlen(buffer_string[i]); j++){
-                int old_roman_numbers = roman_numbers;
-                switch(buffer_string[i][j]){
-                    case('I'):
-                        roman_numbers=1;
-                        break;
-                    case('V'):
-                        roman_numbers=5;
-                        break;
-                    case('X'):
-                        roman_numbers=10;
-                        break;
-                    case('L'):
-                        roman_numbers=50;
-                        break;
-                    case('C'):
-                        roman_numbers=100;
-                        break;
-                    case('D'):
-                        roman_numbers=500;
-                        break;
-                    case('M'):
-                        roman_numbers=1000;
-                        break;
-                    default:
-                        return INCORRECTED_ROMAN_NUMBERS_FORMAT;
-                }
-                //  III 1(0)+1(1) +1 (2)
-                // IV 1(0) + 4(1)
-                if  ((j!=0) && (old_roman_numbers < roman_numbers)){
-                        sum_roman_numbers += (roman_numbers-old_roman_numbers);
-                        sum_roman_numbers -= old_roman_numbers;
-            
-                }
-                else{
-                    sum_roman_numbers += roman_numbers;
-
-                }
-
-
-            }
-            
-
+            roman_number_convert(buffer_string[i],&sum_roman_numbers);
             *val = sum_roman_numbers;
         }
         
@@ -614,113 +495,29 @@ int oversscanf(char *buf, char * format, ...){
         else if(strcmp(specification_buffer_string[i],"%Cv") == 0){
             int *val = va_arg(arguments,int*);
             int base = va_arg(arguments,int);
-            
-            if (base < 2 || base > 36) {
-                base = 10;
-            }
-            
-            int result = 0; 
-            int sign = 1; 
-            
-
-            if (buffer_string[i][0] == '-') {
-                sign = -1; 
-            }
-            
-
-            for (int j = (buffer_string[i][0] == '-' ? 1 : 0); buffer_string[i][j] != '\0'; j++) {
-
-                
-                int digit;
-                
-  
-                if (isdigit(buffer_string[i][j])) {
-                    digit = buffer_string[i][j] - '0'; 
-                } else {
-                    digit = buffer_string[i][j] - 'a' + 10; 
-                }
-                
-
-                if (digit >= 0 && digit < base) {
-                    result = result * base + digit; 
-                } else {
-                    break; 
-                }
-            }
-            
-
-            *val = result * sign;
+            *val = system_number_convert(buffer_string[i], base, false  );
         }
         else if(strcmp(specification_buffer_string[i],"%CV") == 0){
             int *val = va_arg(arguments,int*);
             int base = va_arg(arguments,int);
-
-            if (base < 2 || base > 36) {
-                base = 10;
-            }
-            
-            int result = 0; 
-            int sign = 1;
-            
-           
-            if (buffer_string[i][0] == '-') {
-                sign = -1; 
-            }
-            
-            
-            for (int j = (buffer_string[i][0] == '-' ? 1 : 0); buffer_string[i][j] != '\0'; j++) {
-
-                
-                int digit;
-                
-                
-                if (isdigit(buffer_string[i][j])) {
-                    digit = buffer_string[i][j] - '0'; 
-                } else {
-                    digit = buffer_string[i][j] - 'A' + 10;
-                }
-                
-                
-                if (digit >= 0 && digit < base) {
-                    result = result * base + digit; 
-                } else {
-                    break; 
-                }
-            }
-            
-            
-            *val = result * sign;
+            *val = system_number_convert(buffer_string[i], base, true  ); 
         }
         else{
-            free(specification_buffer_string);
-            free(buffer_string);
-            for (int i = 0; i < len; i++) {
-                free(buffer_string[i]);
-            }
-            for (int i = 0; i < len; i++) {
-                free(specification_buffer_string[i]);
-            }
+            free_memory(specification_buffer_string,len);
+            free_memory(buffer_string, len);
             return SPECITICATION_NOT_FOUND; 
         }
 
     }
 
 
-    // Освобождение памяти
-    for (int i = 0; i < len; i++) {
-        free(specification_buffer_string[i]);
-    }
-    free(specification_buffer_string);   
 
-    // Освобождение памяти
-    for (int i = 0; i < len; i++) {
-        free(buffer_string[i]);
-    }
-    free(buffer_string);    
+    free_memory(specification_buffer_string,len);
+    free_memory(buffer_string, len);
 
 
     va_end(arguments);
-    return PROGRAM_COMPLETED_SUCCESSFULLY;
+    return OK;
 
 
 }
