@@ -112,17 +112,19 @@ int overprintf(char *format, ...){
 
     }
 
-    char ssprinf_array[256];
+
     int count_index_string = 0;
     for (int i = 0;i< count_buffer_string+1 ;i++){
 
         if (strcmp(format_string[i],"%d") == 0){
 
             int val = va_arg(arguments,int);
+            char ssprinf_array[256];
             transformation_int_to_string( val,ssprinf_array,&count_index_string);
+            printf("%s ", ssprinf_array);
         }
 
-        /*else if (strcmp(format_string[i],"%f") == 0){
+        else if (strcmp(format_string[i],"%f") == 0){
             double val = va_arg(arguments,double);
             double max_depth_mantissa = 1000000;
 
@@ -138,14 +140,14 @@ int overprintf(char *format, ...){
 
             // отбрасывание ненужных нолей
             while (multiplied_val % 10 == 0){multiplied_val /= 10; }; 
+            int char_count_whole_part = 0, char_count_mantissa = 0;
+            transformation_int_to_string(whole_part,whole_part_double,&char_count_whole_part);
+            transformation_int_to_string(multiplied_val,mantissa,&char_count_mantissa);
 
-            int char_count_whole_part = transformation_int_to_string(whole_part,whole_part_double,&count_index_string);
-            int char_count_mantissa = transformation_int_to_string(multiplied_val,mantissa,&count_index_string);
-            
   
-            for (int i = char_count_whole_part-1;i>=0;i--){  putchar(whole_part_double[i]);}
+            for (int i = 2-1;i>=0;i--){  putchar(whole_part_double[i]);}
             putchar('.');
-            for (int i = char_count_mantissa-1;i>=0;i--){  putchar(mantissa[i]);}            
+            for (int i =3-1;i>=0;i--){  putchar(mantissa[i]);}            
             putchar(' ');
         }
 
@@ -154,6 +156,7 @@ int overprintf(char *format, ...){
             for (int i = 0; i < strlen(val); i++){  putchar(val[i]);}
             putchar(' ');
         }
+        /*
         else if (strcmp(format_string[i],"%c") == 0){
             int val = va_arg(arguments,int);
             putchar(val);
@@ -176,7 +179,49 @@ int overprintf(char *format, ...){
             for (int i = count_roman_int-1;i>=0;i--){  putchar( string_roman[i]);}
             putchar(' ');
         }
-    */
+        else if (strcmp(format_string[i],"%Cv") == 0)
+        {
+            char * val = va_arg(arguments,char *);
+            int base = va_arg(arguments,int);
+            
+            if (base < 2 || base > 36) {
+                base = 10;
+            }
+            
+            int result = 0; 
+            int sign = 1; 
+            
+
+
+            if ( val[0] == '-') {
+                sign = -1; 
+            }
+            
+
+            for (int j = (val[0] == '-' ? 1 : 0); val[j] != '\0'; j++) {
+
+                
+                int digit;
+                
+  
+                if (isdigit(val[j])) {
+                    digit = val[j] - '0'; 
+                } else {
+                    digit = val[j] - 'a' + 10; 
+                }
+                
+
+                if (digit >= 0 && digit < base) {
+                    result = result * base + digit; 
+                } else {
+                    break; 
+                }
+            }
+            
+            int wewqe = result * sign;
+        }*/
+        
+
           
     }
 
@@ -196,7 +241,6 @@ int transformation_int_to_string(long long int val, char * array_convert_value_t
 
         array_convert_value_to_summary_string[i] = array_convert_value_to_string[i];   
         *count_index_string += 1;
-        printf("%s\n", array_convert_value_to_summary_string);
     
     }
 

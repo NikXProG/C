@@ -67,20 +67,33 @@ int main(int argc, char *argv[]) {
     int count_students= 0;
     Student *students = NULL;
 
-    readStudents(FILE *file, Student **students, int *count_students);
+    do {
+        Student student; 
+        student.assessments = (unsigned char *)malloc(5 * sizeof(unsigned char));  
+
+        if (fscanf(file_read, "id:%u\nsurname:%s\nname:%s\ngroup:%s\nMatematic:%u\nSociety:%u\nRussian language:%u\nEnglish language:%u\ndon net program:%u\n\n",
+                &student.id,
+                student.surname,
+                student.name,
+                student.group,
+                &student.assessments[0],
+                &student.assessments[1],
+                &student.assessments[2],
+                &student.assessments[3],
+                &student.assessments[4]) != 9){
+                return INVALID_COUNT_PARAMETERS_FILE;
+        }
+        
+        Student *tempPtr = (Student *) realloc (students,  ++count_students * sizeof(Student) );
+        students = tempPtr;
+        students[count_students-1] = student;
+
+
+
+    } while (!feof(file_read));
     
 
-    for (int i = 0; i < count_students; i++){
-        printf("%u ",students[i].id);
-        printf("%s ",students[i].surname);
-        printf("%s ",students[i].name);
-        printf("%s ",students[i].group);
-        for (int j = 0; j < 5; j++){
-            printf("%u ",students[i].assessments[j] );
-        }
-        printf("\n");
-    }
-
+    print_struct(students, count_students);
 
     qsort(students, count_students, sizeof(Student), compareById);
 
